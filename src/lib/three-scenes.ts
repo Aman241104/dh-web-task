@@ -33,7 +33,22 @@ function baseSetup(canvas: HTMLCanvasElement) {
     typeof window.matchMedia === "function" &&
     window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-  return { renderer, scene, camera, ro, reducedMotion };
+  // Scenes keep an rAF loop running indefinitely once started — without this,
+  // that loop (and its per-frame WebGL draw calls) keeps running full-speed
+  // even when the canvas is scrolled off-screen or the tab is backgrounded,
+  // which is wasted main-thread/GPU work that can contend with scrolling on
+  // weaker mobile GPUs.
+  let intersecting = true;
+  const io = new IntersectionObserver(
+    ([entry]) => {
+      intersecting = entry.isIntersecting;
+    },
+    { rootMargin: "200px" },
+  );
+  io.observe(canvas);
+  const isActive = () => intersecting && !document.hidden;
+
+  return { renderer, scene, camera, ro, io, reducedMotion, isActive };
 }
 
 const NOOP_HANDLE = { dispose() {} };
@@ -54,7 +69,7 @@ export function initLatticeScene(
 ) {
   const setup = baseSetup(canvas);
   if (!setup) return NOOP_HANDLE;
-  const { renderer, scene, camera, ro, reducedMotion } = setup;
+  const { renderer, scene, camera, ro, io, reducedMotion, isActive } = setup;
   camera.position.set(0, 0, 6.5);
   addLights(scene, colorHex);
 
@@ -102,9 +117,11 @@ export function initLatticeScene(
 
   let raf = 0;
   function tick() {
-    group.rotation.y += 0.0016;
-    group.rotation.x += 0.0004;
-    renderer.render(scene, camera);
+    if (isActive()) {
+      group.rotation.y += 0.0016;
+      group.rotation.x += 0.0004;
+      renderer.render(scene, camera);
+    }
     if (!reducedMotion) raf = requestAnimationFrame(tick);
   }
   tick();
@@ -113,6 +130,7 @@ export function initLatticeScene(
     dispose() {
       if (raf) cancelAnimationFrame(raf);
       ro.disconnect();
+      io.disconnect();
       nodeGeo.dispose();
       nodeMat.dispose();
       edgeGeo.dispose();
@@ -132,7 +150,7 @@ export function initBarChartScene(
 ) {
   const setup = baseSetup(canvas);
   if (!setup) return NOOP_HANDLE;
-  const { renderer, scene, camera, ro, reducedMotion } = setup;
+  const { renderer, scene, camera, ro, io, reducedMotion, isActive } = setup;
   camera.position.set(4.6, 3.4, 6.2);
   camera.lookAt(0, 0.4, 0);
   addLights(scene, colorHex);
@@ -193,25 +211,27 @@ export function initBarChartScene(
   let raf = 0;
   let frame = 0;
   function tick() {
-    frame++;
-    barMeshes.forEach((b, i) => {
-      const delay = i * 4;
-      if (frame > delay) b.mesh.scale.y = Math.min(1, b.mesh.scale.y + 0.06);
-    });
-    group.rotation.y = Math.sin(frame * 0.0025) * 0.25;
-
-    raycaster.setFromCamera(pointer, camera);
-    const hit = raycaster.intersectObjects(barMeshes.map((b) => b.mesh))[0];
-    const nextIndex = hit ? (hit.object.userData.index as number) : null;
-    if (nextIndex !== hoveredIndex) {
+    if (isActive()) {
+      frame++;
       barMeshes.forEach((b, i) => {
-        b.mat.emissiveIntensity = i === nextIndex ? 1.1 : 0.4;
+        const delay = i * 4;
+        if (frame > delay) b.mesh.scale.y = Math.min(1, b.mesh.scale.y + 0.06);
       });
-      hoveredIndex = nextIndex;
-      onHover?.(nextIndex);
-    }
+      group.rotation.y = Math.sin(frame * 0.0025) * 0.25;
 
-    renderer.render(scene, camera);
+      raycaster.setFromCamera(pointer, camera);
+      const hit = raycaster.intersectObjects(barMeshes.map((b) => b.mesh))[0];
+      const nextIndex = hit ? (hit.object.userData.index as number) : null;
+      if (nextIndex !== hoveredIndex) {
+        barMeshes.forEach((b, i) => {
+          b.mat.emissiveIntensity = i === nextIndex ? 1.1 : 0.4;
+        });
+        hoveredIndex = nextIndex;
+        onHover?.(nextIndex);
+      }
+
+      renderer.render(scene, camera);
+    }
     if (!reducedMotion || frame < 140) raf = requestAnimationFrame(tick);
   }
   tick();
@@ -220,6 +240,7 @@ export function initBarChartScene(
     dispose() {
       if (raf) cancelAnimationFrame(raf);
       ro.disconnect();
+      io.disconnect();
       canvas.removeEventListener("pointermove", onPointerMove);
       canvas.removeEventListener("pointerleave", onPointerLeave);
       grid.geometry.dispose();
@@ -236,7 +257,7 @@ export function initBarChartScene(
 export function initOrbScene(canvas: HTMLCanvasElement, { colorHex = 0xb4ff39 } = {}) {
   const setup = baseSetup(canvas);
   if (!setup) return NOOP_HANDLE;
-  const { renderer, scene, camera, ro, reducedMotion } = setup;
+  const { renderer, scene, camera, ro, io, reducedMotion, isActive } = setup;
   camera.position.set(0, 0, 4.2);
   addLights(scene, colorHex);
 
@@ -277,12 +298,14 @@ export function initOrbScene(canvas: HTMLCanvasElement, { colorHex = 0xb4ff39 } 
   let raf = 0;
   let t = 0;
   function tick() {
-    t += 0.01;
-    group.rotation.y += hovering ? 0.007 : 0.0022;
-    group.rotation.x = Math.sin(t * 0.3) * 0.15;
-    core.scale.setScalar(1 + Math.sin(t * 1.4) * 0.06);
-    coreMat.emissiveIntensity = hovering ? 1.0 : 0.6;
-    renderer.render(scene, camera);
+    if (isActive()) {
+      t += 0.01;
+      group.rotation.y += hovering ? 0.007 : 0.0022;
+      group.rotation.x = Math.sin(t * 0.3) * 0.15;
+      core.scale.setScalar(1 + Math.sin(t * 1.4) * 0.06);
+      coreMat.emissiveIntensity = hovering ? 1.0 : 0.6;
+      renderer.render(scene, camera);
+    }
     if (!reducedMotion) raf = requestAnimationFrame(tick);
   }
   tick();
@@ -291,6 +314,7 @@ export function initOrbScene(canvas: HTMLCanvasElement, { colorHex = 0xb4ff39 } 
     dispose() {
       if (raf) cancelAnimationFrame(raf);
       ro.disconnect();
+      io.disconnect();
       canvas.removeEventListener("pointerenter", onEnter);
       canvas.removeEventListener("pointerleave", onLeave);
       icoGeo.dispose();
@@ -305,7 +329,7 @@ export function initOrbScene(canvas: HTMLCanvasElement, { colorHex = 0xb4ff39 } 
 export function initGlobeScene(canvas: HTMLCanvasElement, { colorHex = 0xb4ff39 } = {}) {
   const setup = baseSetup(canvas);
   if (!setup) return NOOP_HANDLE;
-  const { renderer, scene, camera, ro, reducedMotion } = setup;
+  const { renderer, scene, camera, ro, io, reducedMotion, isActive } = setup;
   camera.position.set(0, 0, 4.6);
   addLights(scene, colorHex);
 
@@ -360,13 +384,15 @@ export function initGlobeScene(canvas: HTMLCanvasElement, { colorHex = 0xb4ff39 
   let raf = 0;
   let t = 0;
   function tick() {
-    t += 0.01;
-    group.rotation.y += hovering ? 0.006 : 0.0018;
-    const pulse = 1 + Math.sin(t * 2) * 0.25;
-    p1.scale.setScalar(pulse);
-    p2.scale.setScalar(pulse);
-    (wire.material as THREE.LineBasicMaterial).opacity = hovering ? 0.5 : 0.28;
-    renderer.render(scene, camera);
+    if (isActive()) {
+      t += 0.01;
+      group.rotation.y += hovering ? 0.006 : 0.0018;
+      const pulse = 1 + Math.sin(t * 2) * 0.25;
+      p1.scale.setScalar(pulse);
+      p2.scale.setScalar(pulse);
+      (wire.material as THREE.LineBasicMaterial).opacity = hovering ? 0.5 : 0.28;
+      renderer.render(scene, camera);
+    }
     if (!reducedMotion) raf = requestAnimationFrame(tick);
   }
   tick();
@@ -375,6 +401,7 @@ export function initGlobeScene(canvas: HTMLCanvasElement, { colorHex = 0xb4ff39 
     dispose() {
       if (raf) cancelAnimationFrame(raf);
       ro.disconnect();
+      io.disconnect();
       canvas.removeEventListener("pointerenter", onEnter);
       canvas.removeEventListener("pointerleave", onLeave);
       sphereGeo.dispose();
