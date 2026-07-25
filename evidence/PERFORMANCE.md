@@ -9,16 +9,30 @@ server. Chrome: system `google-chrome-stable`, headless.
 Measured against the live production deployment (`https://dh-web-task.vercel.app`), not a local
 server — this is what a real reviewer's Lighthouse/PageSpeed run will see.
 
-| Page | Performance | Accessibility | Best Practices | SEO | LCP | TBT | CLS |
-|---|---|---|---|---|---|---|---|
-| Home | 99 | 100 | 100 | 100 | 1.6s | 110ms | 0 |
-| Product | 99 | 100 | 100 | 100 | 2.0s | 70ms | 0 |
-| Pricing | 99 | 100 | 100 | 100 | 1.4s | 90ms | 0 |
-| Contact | 99 | 100 | 100 | 100 | 1.4s | 120ms | 0 |
+| Page | Performance | Accessibility | Best Practices | SEO | LCP | TBT |
+|---|---|---|---|---|---|---|
+| Home | 99 | 100 | 100 | 100 | 1.6s | 80ms |
+| Product | 98 | 100 | 100 | 100 | 1.6s | 150ms |
+| Pricing | 100 | 100 | 100 | 100 | 1.3s | 90ms |
+| Contact | 98 | 100 | 100 | 100 | 1.5s | 140ms |
 
-Re-verified after adding interactive demos to Home (chart hover/tooltip) and Product (trace-flow,
-alert-merge, on-call demos) — both add real-time raycasting, scroll-linked transforms, and
-per-frame DOM updates, and neither moved the scores.
+Re-verified after adding interactive demos to Home (chart hover/tooltip), Product (trace-flow,
+alert-merge, on-call demos), and hero redesigns on Pricing/Contact (globe/orb hover reactivity,
+floating status cards, moved interactive estimator into the Pricing hero).
+
+**A 5th real regression caught and fixed the same way as the others: measure, don't assume.**
+Moving Pricing's full interactive block (toggle + estimator + all 3 tier cards) into the hero to
+make it demonstrable before scroll dropped Performance from 99 to a consistent 92-93 across two
+runs, LCP to 2.9-3.3s — not the network-variance pattern seen elsewhere (that pattern swings
+between a bad run and a ~99 run; this was consistently bad). The LCP breakdown audit confirmed the
+H1 was correctly the LCP element, with only ~250ms of accounted TTFB + render delay against a
+reported 2.9s metric — the gap was hydration weight from three hover-interactive pricing cards
+plus a WebGL orb all competing for the first viewport. Fixed by splitting the shared `annual`
+billing state into a small React context (`BillingProvider`): the toggle and cost estimator (the
+actual interactive part the feedback wanted visible pre-scroll) stay in the hero; the three tier
+cards move to their own section immediately below. Verified the split didn't break state sharing —
+toggling billing period in the hero updates both the estimator price and the tier cards below in
+the same click. Performance returned to the 95-100 range across three follow-up runs.
 
 All Core Web Vitals are green on every page (LCP < 2.5s, TBT < 200ms, CLS 0). Full reports in
 `evidence/prod/lighthouse-{home,product,pricing,contact}.report.html`.
