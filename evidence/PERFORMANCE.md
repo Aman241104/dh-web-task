@@ -11,10 +11,14 @@ server — this is what a real reviewer's Lighthouse/PageSpeed run will see.
 
 | Page | Performance | Accessibility | Best Practices | SEO | LCP | TBT | CLS |
 |---|---|---|---|---|---|---|---|
-| Home | 99 | 100 | 100 | 100 | 1.9s | 110ms | 0 |
-| Product | 99 | 100 | 100 | 100 | 1.7s | 70ms | 0 |
-| Pricing | 100 | 100 | 100 | 100 | 1.5s | 80ms | 0 |
-| Contact | 99 | 100 | 100 | 100 | 1.4s | 140ms | 0 |
+| Home | 99 | 100 | 100 | 100 | 1.6s | 110ms | 0 |
+| Product | 99 | 100 | 100 | 100 | 2.0s | 70ms | 0 |
+| Pricing | 99 | 100 | 100 | 100 | 1.4s | 90ms | 0 |
+| Contact | 99 | 100 | 100 | 100 | 1.4s | 120ms | 0 |
+
+Re-verified after adding interactive demos to Home (chart hover/tooltip) and Product (trace-flow,
+alert-merge, on-call demos) — both add real-time raycasting, scroll-linked transforms, and
+per-frame DOM updates, and neither moved the scores.
 
 All Core Web Vitals are green on every page (LCP < 2.5s, TBT < 200ms, CLS 0). Full reports in
 `evidence/prod/lighthouse-{home,product,pricing,contact}.report.html`.
