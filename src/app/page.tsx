@@ -6,9 +6,9 @@ import { BorderedGrid, BorderedGridCell } from "@/components/ui/bordered-grid";
 import { NumberedFeatureList, type Feature } from "@/components/ui/numbered-feature-list";
 import { Reveal } from "@/components/motion/reveal";
 import { LatticeCanvas } from "@/components/three/lattice-canvas";
-import { BarChartCanvas } from "@/components/three/bar-chart-canvas";
 import { Marquee } from "@/components/home/marquee";
 import { TerminalReplay } from "@/components/home/terminal-replay";
+import { ChartPanel } from "@/components/home/chart-panel";
 
 const STATS = [
   { n: "01", value: "99.99%", label: "Platform uptime SLA" },
@@ -128,17 +128,27 @@ export default function Home() {
 
       {/* Chart */}
       <Reveal className="mx-auto w-full max-w-6xl px-4 sm:px-6">
-        <p className="m-0 mb-3.5 font-mono text-[13px] uppercase tracking-[0.12em] text-[var(--color-accent)]">
-          Live volume
-        </p>
-        <h2 className="m-0 mb-8 max-w-[20ch] text-[clamp(30px,4.2vw,50px)] font-extrabold tracking-tight">
-          Correlated signals, two weeks running
-        </h2>
-        <div className="overflow-hidden rounded-3xl border border-white/[0.06] bg-gradient-to-br from-[#14161a] to-[#0E0F11]">
-          <BarChartCanvas
-            className="block h-[clamp(320px,38vw,460px)] w-full"
-            label="3D bar chart showing correlated signal volume rising steadily over the last 14 days"
-          />
+        <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-[1fr_1.3fr]">
+          <div>
+            <p className="m-0 mb-3.5 font-mono text-[13px] uppercase tracking-[0.12em] text-[var(--color-accent)]">
+              Live volume
+            </p>
+            <h2 className="m-0 mb-5 max-w-[16ch] text-[clamp(30px,4.2vw,50px)] font-extrabold tracking-tight">
+              Correlated signals, two weeks running
+            </h2>
+            <p className="m-0 mb-8 max-w-[40ch] text-[15px] leading-relaxed text-[var(--color-muted)]">
+              Instead of thousands of unrelated alerts, Northline groups them into one incident —
+              hover a bar to see a real trace.
+            </p>
+            <StatStrip
+              stats={[
+                { value: "99.2%", label: "Correlation accuracy" },
+                { value: "1.2B", label: "Signals per day" },
+                { value: "<4min", label: "Root cause lookup" },
+              ]}
+            />
+          </div>
+          <ChartPanel />
         </div>
       </Reveal>
 

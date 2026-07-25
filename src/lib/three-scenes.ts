@@ -124,7 +124,11 @@ export function initLatticeScene(
 
 export function initBarChartScene(
   canvas: HTMLCanvasElement,
-  { values = [] as number[], colorHex = 0xb4ff39 } = {},
+  {
+    values = [] as number[],
+    colorHex = 0xb4ff39,
+    onHover,
+  }: { values?: number[]; colorHex?: number; onHover?: (index: number | null) => void } = {},
 ) {
   const setup = baseSetup(canvas);
   if (!setup) return NOOP_HANDLE;
@@ -132,6 +136,10 @@ export function initBarChartScene(
   camera.position.set(4.6, 3.4, 6.2);
   camera.lookAt(0, 0.4, 0);
   addLights(scene, colorHex);
+
+  const fillLight = new THREE.PointLight(colorHex, 1.1, 30);
+  fillLight.position.set(2, 4, -2);
+  scene.add(fillLight);
 
   const group = new THREE.Group();
   scene.add(group);
@@ -142,7 +150,7 @@ export function initBarChartScene(
   const gap = 0.85;
   const totalWidth = (n - 1) * gap;
 
-  const grid = new THREE.GridHelper(totalWidth + 3, 12, 0x2a2f26, 0x1a1d18);
+  const grid = new THREE.GridHelper(totalWidth + 3, 12, 0x3a4230, 0x1a1d18);
   grid.position.y = -0.01;
   group.add(grid);
 
@@ -153,18 +161,34 @@ export function initBarChartScene(
     const mat = new THREE.MeshStandardMaterial({
       color: colorHex,
       emissive: colorHex,
-      emissiveIntensity: 0.35,
-      roughness: 0.35,
-      metalness: 0.2,
+      emissiveIntensity: 0.4,
+      roughness: 0.3,
+      metalness: 0.25,
       transparent: true,
       opacity: 0.92,
     });
     const mesh = new THREE.Mesh(geo, mat);
     mesh.position.set(i * gap - totalWidth / 2, h / 2, 0);
+    mesh.userData.index = i;
     group.add(mesh);
     barMeshes.push({ mesh, geo, mat });
     mesh.scale.y = 0.001;
   });
+
+  const raycaster = new THREE.Raycaster();
+  const pointer = new THREE.Vector2(-10, -10);
+  let hoveredIndex: number | null = null;
+
+  function onPointerMove(event: PointerEvent) {
+    const rect = canvas.getBoundingClientRect();
+    pointer.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+    pointer.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+  }
+  function onPointerLeave() {
+    pointer.set(-10, -10);
+  }
+  canvas.addEventListener("pointermove", onPointerMove);
+  canvas.addEventListener("pointerleave", onPointerLeave);
 
   let raf = 0;
   let frame = 0;
@@ -175,6 +199,18 @@ export function initBarChartScene(
       if (frame > delay) b.mesh.scale.y = Math.min(1, b.mesh.scale.y + 0.06);
     });
     group.rotation.y = Math.sin(frame * 0.0025) * 0.25;
+
+    raycaster.setFromCamera(pointer, camera);
+    const hit = raycaster.intersectObjects(barMeshes.map((b) => b.mesh))[0];
+    const nextIndex = hit ? (hit.object.userData.index as number) : null;
+    if (nextIndex !== hoveredIndex) {
+      barMeshes.forEach((b, i) => {
+        b.mat.emissiveIntensity = i === nextIndex ? 1.1 : 0.4;
+      });
+      hoveredIndex = nextIndex;
+      onHover?.(nextIndex);
+    }
+
     renderer.render(scene, camera);
     if (!reducedMotion || frame < 140) raf = requestAnimationFrame(tick);
   }
@@ -184,6 +220,8 @@ export function initBarChartScene(
     dispose() {
       if (raf) cancelAnimationFrame(raf);
       ro.disconnect();
+      canvas.removeEventListener("pointermove", onPointerMove);
+      canvas.removeEventListener("pointerleave", onPointerLeave);
       grid.geometry.dispose();
       (grid.material as THREE.Material).dispose();
       barMeshes.forEach((b) => {
