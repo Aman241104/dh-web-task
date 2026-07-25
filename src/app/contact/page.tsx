@@ -20,9 +20,24 @@ export const metadata: Metadata = {
 };
 
 const TEAM = [
-  { initials: "JM", name: "Jordan M.", role: "Solutions Engineer" },
-  { initials: "AK", name: "Aisha K.", role: "Sales, Platform Teams" },
-  { initials: "RT", name: "Rin T.", role: "Support Engineer" },
+  {
+    initials: "JM",
+    name: "Jordan M.",
+    role: "Solutions Engineer",
+    detail: "8 yrs on-call · Austin, TX · fluent in Kubernetes horror stories",
+  },
+  {
+    initials: "AK",
+    name: "Aisha K.",
+    role: "Sales, Platform Teams",
+    detail: "Ex-SRE · Lisbon, PT · will tell you honestly if Starter is enough",
+  },
+  {
+    initials: "RT",
+    name: "Rin T.",
+    role: "Support Engineer",
+    detail: "6 yrs incident response · Austin, TX · replies in under 15 min",
+  },
 ];
 
 const STEPS = [
@@ -97,28 +112,39 @@ export default function ContactPage() {
       </section>
 
       {/* Team */}
-      <section className="mx-auto w-full max-w-6xl px-4 sm:px-6">
-        <p className="m-0 mb-5 font-mono text-[13px] uppercase tracking-[0.1em] text-[#7D8280]">
-          Who you&apos;ll talk to
-        </p>
-        <div className="grid grid-cols-1 gap-5 sm:grid-cols-3">
-          {TEAM.map((member) => (
-            <div key={member.name} className="flex items-center gap-3.5 rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg-raised)] p-4.5">
-              <span
-                aria-hidden
-                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-[var(--color-accent)] font-mono text-sm font-bold text-[var(--color-accent)]"
-                style={{ background: "#161c0d" }}
-              >
-                {member.initials}
-              </span>
-              <div>
-                <p className="m-0 text-sm font-semibold">{member.name}</p>
-                <p className="mt-0.5 m-0 font-mono text-xs text-[#7D8280]">{member.role}</p>
+      <Reveal variant="scale" className="mx-auto w-full max-w-6xl px-4 sm:px-6">
+        <div className="relative overflow-hidden rounded-[2rem] bg-[var(--color-foreground)] px-6 py-14 text-[var(--color-bg)] sm:px-14 sm:py-16">
+          <span
+            aria-hidden
+            className="pointer-events-none absolute -bottom-[0.1em] left-1/2 -translate-x-1/2 select-none whitespace-nowrap text-[clamp(60px,16vw,220px)] font-black leading-none tracking-tight text-[#0B0C0E]/[0.05]"
+          >
+            TEAM
+          </span>
+          <p className="relative m-0 mb-2 font-mono text-[13px] uppercase tracking-[0.1em] text-[#5b6b1f]">
+            Not a support queue
+          </p>
+          <h2 className="relative m-0 mb-9 max-w-[24ch] text-[clamp(24px,3.2vw,36px)] font-extrabold tracking-tight">
+            Who you&apos;ll actually talk to
+          </h2>
+          <div className="relative grid grid-cols-1 gap-6 sm:grid-cols-3">
+            {TEAM.map((member) => (
+              <div key={member.name}>
+                <span
+                  aria-hidden
+                  className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-[var(--color-bg)] font-mono text-sm font-bold text-[var(--color-accent)]"
+                >
+                  {member.initials}
+                </span>
+                <p className="m-0 text-base font-bold">{member.name}</p>
+                <p className="mt-0.5 mb-2.5 font-mono text-xs uppercase tracking-[0.06em] text-[#5b6b1f]">
+                  {member.role}
+                </p>
+                <p className="m-0 text-sm leading-relaxed text-[#3a3d38]">{member.detail}</p>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
-      </section>
+      </Reveal>
 
       {/* Live status */}
       <section className="mx-auto w-full max-w-6xl px-4 sm:px-6">
@@ -194,7 +220,7 @@ export default function ContactPage() {
       </Reveal>
 
       {/* Book time band */}
-      <section className="mx-auto w-full max-w-6xl px-4 sm:px-6">
+      <Reveal variant="scale" className="mx-auto w-full max-w-6xl px-4 sm:px-6">
         <div
           className="flex flex-wrap items-center justify-between gap-6 rounded-[1.75rem] border border-[var(--color-accent)]/25 p-8 sm:p-14"
           style={{ background: "linear-gradient(120deg, #141a0c 0%, #101113 60%)" }}
@@ -214,7 +240,7 @@ export default function ContactPage() {
             Book 20 minutes →
           </a>
         </div>
-      </section>
+      </Reveal>
     </div>
   );
 }

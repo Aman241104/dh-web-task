@@ -126,6 +126,25 @@ export function ContactForm() {
         </div>
       </div>
 
+      <div className="mb-5">
+        <label htmlFor="stack" className="mb-2 block font-mono text-[13px] text-[var(--color-muted)]">
+          Current monitoring stack
+        </label>
+        <select
+          id="stack"
+          name="stack"
+          defaultValue="none"
+          className="w-full rounded-[10px] border border-[var(--color-border-strong)] bg-[var(--color-bg)] px-3.5 py-3 text-[15px] outline-none transition-colors focus:border-[var(--color-accent)]"
+        >
+          <option value="none">Nothing yet — mostly logs and hope</option>
+          <option value="datadog">Datadog</option>
+          <option value="grafana">Grafana / Prometheus</option>
+          <option value="pagerduty">PagerDuty (paging only)</option>
+          <option value="homegrown">Homegrown / in-house</option>
+          <option value="other">Something else</option>
+        </select>
+      </div>
+
       <div className="mb-6.5">
         <label htmlFor="message" className="mb-2 block font-mono text-[13px] text-[var(--color-muted)]">
           What&apos;s paging your team? *
