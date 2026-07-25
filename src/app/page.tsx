@@ -254,7 +254,7 @@ export default function Home() {
             on Northline&apos;s correlated timelines.&rdquo;
           </p>
           <footer className="font-mono text-sm text-[#7D8280]">
-            — VP Engineering, Ledgerframe
+            — Priya Nandan, VP Engineering at Ledgerframe
           </footer>
         </blockquote>
       </Reveal>
