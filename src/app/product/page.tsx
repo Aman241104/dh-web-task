@@ -5,9 +5,11 @@ import { StatStrip } from "@/components/ui/stat-strip";
 import { FinalCtaBand } from "@/components/ui/final-cta-band";
 import { Reveal } from "@/components/motion/reveal";
 import { LatticeCanvas } from "@/components/three/lattice-canvas";
-import { BarChartCanvas } from "@/components/three/bar-chart-canvas";
 import { LatencyHeatmap } from "@/components/product/latency-heatmap";
 import { CopyCommand } from "@/components/product/copy-command";
+import { TraceFlowDemo } from "@/components/product/trace-flow-demo";
+import { AlertMergeDemo } from "@/components/product/alert-merge-demo";
+import { OnCallDemo } from "@/components/product/oncall-demo";
 import { JsonLd, serviceSchema } from "@/lib/structured-data";
 
 const INSTALL_COMMAND = "npm install @northline/otel-exporter";
@@ -36,21 +38,24 @@ const BLOCKS = [
     title: "Distributed tracing across every hop",
     desc: "Follow a request through services, queues, and third-party APIs with span-level detail — no more stitching logs by hand.",
     stat: "Traces retained for 30 days, sampled at 100% during incidents",
-    is3d: true,
+    demo: "trace" as const,
+    watermark: "TRACE",
   },
   {
     tag: "Alerting",
     title: "Correlation before notification",
     desc: "Northline groups related signals into one incident before anyone gets paged, so a single root cause doesn't fan out into forty alerts.",
     stat: "63% fewer duplicate pages on average",
-    imgLabel: "alert correlation view — screenshot",
+    demo: "alert" as const,
+    watermark: "ALERTS",
   },
   {
     tag: "On-call",
     title: "Scheduling that matches reality",
     desc: "Rotations, follow-the-sun handoffs, and manual overrides, with escalation paths that respect who's actually awake.",
     stat: "Escalates in under 45 seconds if unacknowledged",
-    imgLabel: "on-call schedule — screenshot",
+    demo: "oncall" as const,
+    watermark: "ON CALL",
   },
 ];
 
@@ -148,28 +153,21 @@ export default function ProductPage() {
         <div className="flex flex-col gap-px overflow-hidden rounded-[1.75rem] border border-[var(--color-border)] bg-[var(--color-border)]">
           {BLOCKS.map((block) => (
             <div key={block.tag} className="grid grid-cols-1 bg-[var(--color-bg-raised)] sm:grid-cols-[1fr_1.4fr]">
-              {block.is3d ? (
-                <div aria-hidden className="min-h-[240px]">
-                  <BarChartCanvas
-                    className="block h-full min-h-[240px] w-full"
-                    label="3D visualization of a distributed trace waterfall with spans at varying depths"
-                    values={[90, 340, 120, 210, 480, 160, 260, 90, 380]}
-                  />
-                </div>
-              ) : (
-                <div
-                  aria-hidden
-                  className="flex min-h-[240px] items-center justify-center"
-                  style={{
-                    background:
-                      "repeating-linear-gradient(115deg, #1a1c1f, #1a1c1f 10px, #151719 10px, #151719 20px)",
-                  }}
-                >
-                  <span className="font-mono text-xs tracking-wide text-[#7D8280]">
-                    {block.imgLabel}
-                  </span>
-                </div>
-              )}
+              <div
+                className="relative min-h-[240px] overflow-hidden"
+                style={{
+                  backgroundImage: `url("data:image/svg+xml,${encodeURIComponent(
+                    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${block.watermark.length * 62} 100"><text x="0" y="82" font-family="Arial, sans-serif" font-weight="900" font-size="92" letter-spacing="-2" fill="white" fill-opacity="0.025">${block.watermark}</text></svg>`,
+                  )}")`,
+                  backgroundRepeat: "no-repeat",
+                  backgroundPosition: "center",
+                  backgroundSize: "80%",
+                }}
+              >
+                {block.demo === "trace" && <TraceFlowDemo />}
+                {block.demo === "alert" && <AlertMergeDemo />}
+                {block.demo === "oncall" && <OnCallDemo />}
+              </div>
               <div className="p-8 sm:p-12">
                 <p className="m-0 mb-3.5 font-mono text-[13px] uppercase tracking-[0.1em] text-[var(--color-accent)]">
                   {block.tag}
