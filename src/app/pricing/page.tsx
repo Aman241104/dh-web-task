@@ -84,8 +84,49 @@ export default function PricingPage() {
         <PricingInteractive />
       </Reveal>
 
+      {/* Why these plans exist */}
+      <Reveal variant="scale" className="mx-auto w-full max-w-6xl px-4 sm:px-6">
+        <div className="relative overflow-hidden rounded-[2rem] bg-[var(--color-foreground)] px-6 py-16 text-[var(--color-bg)] sm:px-14 sm:py-20">
+          <span
+            aria-hidden
+            className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 whitespace-nowrap text-[clamp(70px,20vw,260px)] font-black tracking-tight text-[#0B0C0E]/[0.05] blur-[2px]"
+          >
+            WHY
+          </span>
+          <p className="relative m-0 mb-3.5 font-mono text-[13px] uppercase tracking-[0.12em] text-[#5b6b1f]">
+            No plan is padding
+          </p>
+          <h2 className="relative m-0 mb-10 max-w-[20ch] text-[clamp(28px,4vw,44px)] font-extrabold leading-[1.05] tracking-tight">
+            Why these three tiers, and not more
+          </h2>
+          <div className="relative grid grid-cols-1 gap-8 sm:grid-cols-3">
+            <div>
+              <h3 className="m-0 mb-2 text-lg font-bold">Starter</h3>
+              <p className="m-0 text-[15px] leading-relaxed text-[#3a3d38]">
+                For teams who don&apos;t know yet if this is worth paying for. Ten services, real
+                tracing, no card required to feel it.
+              </p>
+            </div>
+            <div>
+              <h3 className="m-0 mb-2 text-lg font-bold">Team</h3>
+              <p className="m-0 text-[15px] leading-relaxed text-[#3a3d38]">
+                For teams already paging humans at 3am. Correlation and noise reduction aren&apos;t
+                a feature here — they&apos;re the entire reason to switch.
+              </p>
+            </div>
+            <div>
+              <h3 className="m-0 mb-2 text-lg font-bold">Enterprise</h3>
+              <p className="m-0 text-[15px] leading-relaxed text-[#3a3d38]">
+                For platform teams that get audited. SSO and data residency aren&apos;t upsells —
+                they&apos;re what gets procurement to sign off at all.
+              </p>
+            </div>
+          </div>
+        </div>
+      </Reveal>
+
       {/* Migration */}
-      <Reveal className="mx-auto w-full max-w-6xl px-4 sm:px-6">
+      <Reveal variant="scale" className="mx-auto w-full max-w-6xl px-4 sm:px-6">
         <p className="m-0 mb-3.5 font-mono text-[13px] uppercase tracking-[0.12em] text-[var(--color-accent)]">
           No big-bang cutover
         </p>
@@ -184,7 +225,7 @@ export default function PricingPage() {
       </Reveal>
 
       {/* Quote */}
-      <Reveal className="mx-auto w-full max-w-6xl px-4 sm:px-6">
+      <Reveal variant="scale" className="mx-auto w-full max-w-6xl px-4 sm:px-6">
         <blockquote className="m-0 rounded-[1.75rem] border border-white/[0.08] bg-[var(--color-bg-raised)] p-9 text-center sm:p-14">
           <p className="m-0 mb-6 text-[clamp(22px,2.6vw,30px)] font-semibold leading-tight tracking-tight">
             &ldquo;Team tier paid for itself the first month we didn&apos;t need a fourth on-call
