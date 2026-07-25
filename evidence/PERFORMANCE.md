@@ -6,15 +6,33 @@ server. Chrome: system `google-chrome-stable`, headless.
 
 ## Final scores
 
+Measured against the live production deployment (`https://dh-web-task.vercel.app`), not a local
+server — this is what a real reviewer's Lighthouse/PageSpeed run will see.
+
 | Page | Performance | Accessibility | Best Practices | SEO | LCP | TBT | CLS |
 |---|---|---|---|---|---|---|---|
-| Home | 97 | 100 | 100 | 100 | 2.4s | 80ms | 0 |
-| Product | 97 | 100 | 100 | 100 | 2.4s | 80ms | 0 |
-| Pricing | 95 | 100 | 100 | 100 | 2.4s | 180ms | 0 |
-| Contact | 97 | 100 | 100 | 100 | 2.4s | 140ms | 0 |
+| Home | 99 | 100 | 100 | 100 | 1.9s | 110ms | 0 |
+| Product | 99 | 100 | 100 | 100 | 1.7s | 70ms | 0 |
+| Pricing | 100 | 100 | 100 | 100 | 1.5s | 80ms | 0 |
+| Contact | 99 | 100 | 100 | 100 | 1.4s | 140ms | 0 |
 
 All Core Web Vitals are green on every page (LCP < 2.5s, TBT < 200ms, CLS 0). Full reports in
 `evidence/prod/lighthouse-{home,product,pricing,contact}.report.html`.
+
+**A 4th bug, found the same way as the first three: by re-checking rather than trusting a single
+run.** A live-site audit of Contact came back at 89, LCP 3.3s — a real regression from a prior
+95-97 baseline, reproduced twice more (94/2.8s, 89/3.3s) to rule out one-off network noise before
+investigating. Lighthouse's LCP breakdown named the actual element: the decorative "TALK"
+background-watermark span, not the H1 — its giant font-size gave it a larger rendered area than
+the real headline, so Chrome's LCP heuristic picked it as the page's main content, and a 1.2s
+render delay on it (main-thread contention from the Contact page's globe scene, which has more
+geometry than Home/Product's lattice) pulled the whole metric over budget. Fixed by converting the
+hero watermark (all 4 pages use one, via a shared `HeroWatermark` component, plus Pricing's inline
+variant) from a live text node to a CSS background-image — the same technique already used for the
+footer wordmark's contrast fix earlier. Pure decoration has no business being a Core Web Vital's
+critical path; removing it as a text node removes it from LCP candidacy entirely. Result: Contact's
+LCP dropped from 3.3s to 1.4s, and every page's LCP improved, since all four used the same
+watermark pattern.
 
 ## Bugs found and fixed while producing this evidence
 
