@@ -4,6 +4,7 @@ import { BorderedGrid, BorderedGridCell } from "@/components/ui/bordered-grid";
 import { FaqAccordion } from "@/components/ui/faq-accordion";
 import { Reveal } from "@/components/motion/reveal";
 import { GlobeCanvas } from "@/components/three/globe-canvas";
+import { FloatingStatusCards } from "@/components/contact/floating-status-cards";
 import { ContactForm } from "@/components/contact/contact-form";
 import { LiveStatusBar } from "@/components/contact/live-status-bar";
 import { OfficeClocks } from "@/components/contact/office-clocks";
@@ -68,17 +69,32 @@ export default function ContactPage() {
             }}
           />
           <HeroWatermark>TALK</HeroWatermark>
-          <GlobeCanvas className="pointer-events-none absolute right-0 top-0 h-full w-[48%] opacity-90" />
+          <GlobeCanvas className="absolute right-0 top-0 h-full w-[48%] opacity-90" />
+          <FloatingStatusCards />
           <p className="relative m-0 mb-5.5 font-mono text-sm uppercase tracking-[0.14em] text-[var(--color-accent)]">
             Contact
           </p>
           <h1 className="relative m-0 mb-5.5 max-w-[17ch] text-[clamp(34px,6vw,80px)] font-extrabold leading-[0.98] tracking-tighter">
             Talk to an engineer, not a chatbot
           </h1>
-          <p className="relative m-0 max-w-[52ch] text-lg leading-relaxed text-[#C7C9C4]">
+          <p className="relative m-0 mb-8 max-w-[52ch] text-lg leading-relaxed text-[#C7C9C4]">
             Tell us what&apos;s paging your team and we&apos;ll show you Northline running on a
             trace that looks like yours.
           </p>
+          <div className="relative flex flex-wrap gap-4">
+            <a
+              href="#contact-form"
+              className="rounded-full bg-[var(--color-accent)] px-7.5 py-3.5 font-semibold text-[var(--color-accent-foreground)] transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-0.5"
+            >
+              Book a demo
+            </a>
+            <a
+              href="/pricing"
+              className="rounded-full border border-white/25 px-7.5 py-3.5 font-semibold text-[var(--color-foreground)] transition-colors hover:border-[var(--color-accent)] hover:text-[var(--color-accent)]"
+            >
+              Start free
+            </a>
+          </div>
         </div>
       </section>
 
@@ -171,7 +187,7 @@ export default function ContactPage() {
       </Reveal>
 
       {/* Form + details */}
-      <Reveal className="mx-auto w-full max-w-6xl px-4 sm:px-6">
+      <Reveal id="contact-form" className="mx-auto w-full max-w-6xl scroll-mt-24 px-4 sm:px-6">
         <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-[1.4fr_1fr]">
           <ContactForm />
           <div className="flex flex-col gap-4">

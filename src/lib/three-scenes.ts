@@ -264,13 +264,24 @@ export function initOrbScene(canvas: HTMLCanvasElement, { colorHex = 0xb4ff39 } 
   const core = new THREE.Mesh(coreGeo, coreMat);
   group.add(core);
 
+  let hovering = false;
+  function onEnter() {
+    hovering = true;
+  }
+  function onLeave() {
+    hovering = false;
+  }
+  canvas.addEventListener("pointerenter", onEnter);
+  canvas.addEventListener("pointerleave", onLeave);
+
   let raf = 0;
   let t = 0;
   function tick() {
     t += 0.01;
-    group.rotation.y += 0.0022;
+    group.rotation.y += hovering ? 0.007 : 0.0022;
     group.rotation.x = Math.sin(t * 0.3) * 0.15;
     core.scale.setScalar(1 + Math.sin(t * 1.4) * 0.06);
+    coreMat.emissiveIntensity = hovering ? 1.0 : 0.6;
     renderer.render(scene, camera);
     if (!reducedMotion) raf = requestAnimationFrame(tick);
   }
@@ -280,6 +291,8 @@ export function initOrbScene(canvas: HTMLCanvasElement, { colorHex = 0xb4ff39 } 
     dispose() {
       if (raf) cancelAnimationFrame(raf);
       ro.disconnect();
+      canvas.removeEventListener("pointerenter", onEnter);
+      canvas.removeEventListener("pointerleave", onLeave);
       icoGeo.dispose();
       edges.dispose();
       coreGeo.dispose();
@@ -334,14 +347,25 @@ export function initGlobeScene(canvas: HTMLCanvasElement, { colorHex = 0xb4ff39 
   const arcMat = new THREE.MeshBasicMaterial({ color: colorHex, transparent: true, opacity: 0.8 });
   group.add(new THREE.Mesh(arcGeo, arcMat));
 
+  let hovering = false;
+  function onEnter() {
+    hovering = true;
+  }
+  function onLeave() {
+    hovering = false;
+  }
+  canvas.addEventListener("pointerenter", onEnter);
+  canvas.addEventListener("pointerleave", onLeave);
+
   let raf = 0;
   let t = 0;
   function tick() {
     t += 0.01;
-    group.rotation.y += 0.0018;
+    group.rotation.y += hovering ? 0.006 : 0.0018;
     const pulse = 1 + Math.sin(t * 2) * 0.25;
     p1.scale.setScalar(pulse);
     p2.scale.setScalar(pulse);
+    (wire.material as THREE.LineBasicMaterial).opacity = hovering ? 0.5 : 0.28;
     renderer.render(scene, camera);
     if (!reducedMotion) raf = requestAnimationFrame(tick);
   }
@@ -351,6 +375,8 @@ export function initGlobeScene(canvas: HTMLCanvasElement, { colorHex = 0xb4ff39 
     dispose() {
       if (raf) cancelAnimationFrame(raf);
       ro.disconnect();
+      canvas.removeEventListener("pointerenter", onEnter);
+      canvas.removeEventListener("pointerleave", onLeave);
       sphereGeo.dispose();
       edges.dispose();
       pinGeo.dispose();

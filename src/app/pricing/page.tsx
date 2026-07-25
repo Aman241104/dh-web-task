@@ -81,15 +81,14 @@ export default function PricingPage() {
           <h1 className="relative m-0 mx-auto mb-5.5 max-w-[16ch] text-[clamp(34px,6vw,76px)] font-extrabold leading-[0.98] tracking-tighter">
             Pricing that scales with your on-call load
           </h1>
-          <p className="relative m-0 mx-auto max-w-[50ch] text-lg leading-relaxed text-[#C7C9C4]">
+          <p className="relative m-0 mx-auto mb-10 max-w-[50ch] text-lg leading-relaxed text-[#C7C9C4]">
             No per-seat tax on your busiest engineers. Pay for signal volume, not headcount.
           </p>
+          <div className="relative">
+            <PricingInteractive />
+          </div>
         </div>
       </section>
-
-      <Reveal className="mx-auto w-full max-w-6xl px-4 sm:px-6">
-        <PricingInteractive />
-      </Reveal>
 
       {/* Why these plans exist */}
       <Reveal variant="scale" className="mx-auto w-full max-w-6xl px-4 sm:px-6">

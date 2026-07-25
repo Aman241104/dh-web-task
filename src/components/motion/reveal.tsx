@@ -17,14 +17,17 @@ export function Reveal({
   delay = 0,
   className,
   variant = "up",
+  id,
 }: {
   children: ReactNode;
   delay?: number;
   className?: string;
   variant?: keyof typeof VARIANTS;
+  id?: string;
 }) {
   return (
     <motion.div
+      id={id}
       className={className}
       initial={VARIANTS[variant]}
       whileInView={SETTLED}
