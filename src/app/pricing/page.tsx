@@ -4,7 +4,10 @@ import { FaqAccordion } from "@/components/ui/faq-accordion";
 import { Reveal } from "@/components/motion/reveal";
 import { OrbCanvas } from "@/components/three/orb-canvas";
 import { Marquee } from "@/components/home/marquee";
-import { PricingInteractive } from "@/components/pricing/pricing-interactive";
+import { BillingProvider } from "@/components/pricing/billing-context";
+import { BillingToggle } from "@/components/pricing/billing-toggle";
+import { CostEstimator } from "@/components/pricing/cost-estimator";
+import { PricingTiers } from "@/components/pricing/pricing-tiers";
 import { JsonLd, faqSchema } from "@/lib/structured-data";
 
 export const metadata: Metadata = {
@@ -48,6 +51,7 @@ const FAQ_ITEMS = [
 
 export default function PricingPage() {
   return (
+    <BillingProvider>
     <div className="flex flex-col gap-20 pb-24 sm:gap-24">
       <JsonLd data={faqSchema(FAQ_ITEMS)} />
 
@@ -85,10 +89,15 @@ export default function PricingPage() {
             No per-seat tax on your busiest engineers. Pay for signal volume, not headcount.
           </p>
           <div className="relative">
-            <PricingInteractive />
+            <BillingToggle />
+            <CostEstimator />
           </div>
         </div>
       </section>
+
+      <Reveal className="mx-auto w-full max-w-6xl px-4 sm:px-6">
+        <PricingTiers />
+      </Reveal>
 
       {/* Why these plans exist */}
       <Reveal variant="scale" className="mx-auto w-full max-w-6xl px-4 sm:px-6">
@@ -257,5 +266,6 @@ export default function PricingPage() {
         <FinalCtaBand heading="Not sure which tier fits?" ctaLabel="Talk to sales" ctaHref="/contact" />
       </Reveal>
     </div>
+    </BillingProvider>
   );
 }
