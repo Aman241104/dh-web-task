@@ -207,7 +207,7 @@ export default function Home() {
         >
           <div
             aria-hidden
-            className="absolute inset-y-0 left-1/2 w-[2px] -translate-x-1/2 bg-[var(--color-accent)]"
+            className="absolute inset-y-0 left-1/2 hidden w-[2px] -translate-x-1/2 bg-[var(--color-accent)] sm:block"
             style={{ boxShadow: "0 0 80px 14px rgba(180,255,57,0.55)" }}
           />
           <div className="relative mx-auto grid max-w-5xl grid-cols-1 items-center gap-12 text-center sm:grid-cols-3">

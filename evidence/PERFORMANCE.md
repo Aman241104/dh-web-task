@@ -4,17 +4,42 @@ All 4 pages (Home, Product, Pricing, Contact) audited with Lighthouse, mobile fo
 simulated throttling, against a **production build** (`next build && next start`), not the dev
 server. Chrome: system `google-chrome-stable`, headless.
 
-## Final scores
+## Final scores — reported as a range, not a single best run
 
 Measured against the live production deployment (`https://dh-web-task.vercel.app`), not a local
-server — this is what a real reviewer's Lighthouse/PageSpeed run will see.
+server — this is what a real reviewer's Lighthouse/PageSpeed run will see. **Each page was run 3x
+in the same session** after an external strict audit found the previous single-run numbers below
+did not reproduce (see "Known instability" below).
 
-| Page | Performance | Accessibility | Best Practices | SEO | LCP | TBT |
+| Page | Performance (3 runs) | Accessibility | Best Practices | SEO | LCP range | TBT range |
 |---|---|---|---|---|---|---|
-| Home | 99 | 100 | 100 | 100 | 1.6s | 80ms |
-| Product | 98 | 100 | 100 | 100 | 1.6s | 150ms |
-| Pricing | 100 | 100 | 100 | 100 | 1.3s | 90ms |
-| Contact | 98 | 100 | 100 | 100 | 1.5s | 140ms |
+| Home | 76 – 95 | 100 | 100 | 100 | 1.3s – 3.6s | 260ms – 330ms |
+| Product | 79 – 80 | 100 | 100 | 100 | 3.8s | 130ms – 140ms |
+| Pricing | 68 – 80 | 100 | 100 | 100 | 3.6s – 3.8s | 220ms – 500ms |
+| Contact | 92 (stable) | 100 | 100 | 100 | 1.4s | 360ms |
+
+Accessibility/Best Practices/SEO are stable at 100 across every run on every page. Performance and
+TBT are not stable — see below.
+
+## Known instability — disclosed, not resolved
+
+Performance swings by up to 27 points across back-to-back runs of the same page (Pricing: 68 to
+80), and TBT fails the 200ms budget in most runs, worst on Pricing (up to 500ms). This is a real,
+current limitation, not a one-off network blip — it reproduced across 3 separate runs each on
+Home and Pricing. Likely contributors, not yet isolated to one root cause:
+
+- Pricing's hero carries the heaviest hydration load on the site (billing toggle + cost estimator
+  + a WebGL orb, all interactive, all above the fold) — flagged as the single biggest lever in
+  "What's carried from the design" below, and the numbers here confirm it's still the least stable
+  page rather than a solved problem.
+- Vercel serverless/edge cold starts plausibly add variance independent of the client bundle —
+  not confirmed, would need server-timing trace analysis to isolate from client-side hydration
+  cost.
+
+The honest takeaway: Accessibility/Best Practices/SEO are reliably perfect. Performance is
+generally in the high-70s-to-90s range with occasional dips into the high-60s on Pricing
+specifically, not the flat 98-100 previously reported here. A reviewer running Lighthouse once has
+real odds of landing anywhere in that range depending on which run they get.
 
 Re-verified after adding interactive demos to Home (chart hover/tooltip), Product (trace-flow,
 alert-merge, on-call demos), and hero redesigns on Pricing/Contact (globe/orb hover reactivity,
@@ -34,7 +59,8 @@ cards move to their own section immediately below. Verified the split didn't bre
 toggling billing period in the hero updates both the estimator price and the tier cards below in
 the same click. Performance returned to the 95-100 range across three follow-up runs.
 
-All Core Web Vitals are green on every page (LCP < 2.5s, TBT < 200ms, CLS 0). Full reports in
+CLS is 0 on every page, every run — that one's genuinely solid. LCP and TBT are not consistently
+green; see "Known instability" above. Full reports in
 `evidence/prod/lighthouse-{home,product,pricing,contact}.report.html`.
 
 **A 4th bug, found the same way as the first three: by re-checking rather than trusting a single
@@ -53,6 +79,29 @@ LCP dropped from 3.3s to 1.4s, and every page's LCP improved, since all four use
 watermark pattern.
 
 ## Bugs found and fixed while producing this evidence
+
+**6. Mobile layout bug, caught by direct user report on a real phone, not by any automated
+check.** The "Impact at a glance" stat section's decorative center divider (`absolute inset-y-0
+left-1/2 w-[2px]`, meant to sit between the 3 desktop grid columns) had no mobile visibility gate.
+On mobile the grid collapses to 1 stacked column but the divider stayed rendered at full section
+height, centered — visually bisecting all 3 stacked stat blocks with a glowing line straight down
+the middle of the screen. Lighthouse and automated a11y/DOM checks never caught this because
+nothing about it is functionally broken — it's a pure visual defect that only shows up by actually
+looking at the page on a narrow viewport. Fixed with `hidden sm:block` on the divider. Lesson: a
+decorative element built for one breakpoint's layout needs an explicit visibility gate for every
+other breakpoint it can render at — Lighthouse and axe-core will not catch a divider in the wrong
+place, only a human eye (or a real screenshot) will.
+
+**On the "scroll stops working sometimes" report:** audited the codebase for the usual causes —
+touch-blocking `touch-action` on WebGL canvases (none found), competing scroll-hijack listeners
+(only one `useScroll`, in the chart panel; two plain `window.addEventListener("scroll")` listeners
+for nav/progress-bar styling, neither calls `preventDefault`), and Lenis's touch config (`ReactLenis
+root` with only `{ lerp, duration }` set — `syncTouch` is off by default in Lenis v1, meaning touch
+scroll is native/unvirtualized, not intercepted). None of these show an obvious scroll-blocking
+mechanism. The TBT spikes measured above (up to 500ms on Pricing) are the more likely explanation
+for an intermittent "stuck" feeling — a real main-thread stall during hydration reads as frozen
+scroll for a beat, then recovers. Not conclusively isolated; needs retest on a real device now that
+the visual bug above is fixed, since the two may have been compounding each other.
 
 **1. First pass measured the wrong server.** Initial Lighthouse run was against `next dev`
 (Turbopack dev mode, unminified, HMR overhead). Scores were Performance 82-86, TBT 450-570ms,
