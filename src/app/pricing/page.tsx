@@ -61,12 +61,19 @@ export default function PricingPage() {
               background: "radial-gradient(60% 50% at 50% 0%, rgba(180,255,57,0.12), transparent 70%)",
             }}
           />
-          <span
+          <div
             aria-hidden
-            className="pointer-events-none absolute -bottom-[0.2em] left-1/2 -translate-x-1/2 select-none whitespace-nowrap text-[clamp(90px,20vw,260px)] font-black leading-none tracking-tight text-white/[0.025]"
-          >
-            PLANS
-          </span>
+            className="pointer-events-none absolute -bottom-[0.2em] left-1/2 -translate-x-1/2 select-none"
+            style={{
+              height: "clamp(90px, 20vw, 260px)",
+              aspectRatio: "3.2 / 1",
+              backgroundImage:
+                'url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 320 100%27%3E%3Ctext x=%27160%27 y=%2782%27 text-anchor=%27middle%27 font-family=%27Arial, sans-serif%27 font-weight=%27900%27 font-size=%2792%27 letter-spacing=%27-2%27 fill=%27white%27 fill-opacity=%270.025%27%3EPLANS%3C/text%3E%3C/svg%3E")',
+              backgroundRepeat: "no-repeat",
+              backgroundPosition: "center",
+              backgroundSize: "contain",
+            }}
+          />
           <OrbCanvas className="pointer-events-none absolute right-[2%] top-0 h-[220px] w-[220px] opacity-90" />
           <p className="relative m-0 mb-5.5 font-mono text-sm uppercase tracking-[0.14em] text-[var(--color-accent)]">
             Pricing
