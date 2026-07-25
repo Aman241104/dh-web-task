@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { HeroWatermark } from "@/components/ui/hero-watermark";
 import { FinalCtaBand } from "@/components/ui/final-cta-band";
+import { StatStrip } from "@/components/ui/stat-strip";
 import { BorderedGrid, BorderedGridCell } from "@/components/ui/bordered-grid";
 import { NumberedFeatureList, type Feature } from "@/components/ui/numbered-feature-list";
 import { Reveal } from "@/components/motion/reveal";
@@ -121,18 +122,8 @@ export default function Home() {
       </section>
 
       {/* Stats */}
-      <Reveal className="mx-auto w-full max-w-6xl px-4 sm:px-6">
-        <BorderedGrid>
-          {STATS.map((stat) => (
-            <BorderedGridCell key={stat.n}>
-              <div className="mb-2.5 font-mono text-xs text-[#7D8280]">{stat.n}</div>
-              <div className="font-mono text-[clamp(30px,3.6vw,42px)] font-bold tabular-nums">
-                {stat.value}
-              </div>
-              <div className="mt-2.5 font-mono text-sm text-[var(--color-muted)]">{stat.label}</div>
-            </BorderedGridCell>
-          ))}
-        </BorderedGrid>
+      <Reveal variant="scale" className="mx-auto w-full max-w-6xl px-4 sm:px-6">
+        <StatStrip stats={STATS.map((s) => ({ value: s.value, label: s.label }))} />
       </Reveal>
 
       {/* Chart */}
@@ -195,7 +186,7 @@ export default function Home() {
       </Reveal>
 
       {/* Atmospheric impact band */}
-      <Reveal>
+      <Reveal variant="scale">
         <section
           aria-label="Impact at a glance"
           className="relative overflow-hidden border-y border-white/[0.06] px-4 py-24 sm:px-6 sm:py-36"
@@ -246,7 +237,7 @@ export default function Home() {
       </section>
 
       {/* Quote */}
-      <Reveal className="mx-auto w-full max-w-6xl px-4 sm:px-6">
+      <Reveal variant="scale" className="mx-auto w-full max-w-6xl px-4 sm:px-6">
         <blockquote className="m-0 rounded-[1.75rem] border border-white/[0.08] bg-[var(--color-bg-raised)] p-9 sm:p-16">
           <p className="m-0 mb-7 max-w-[32ch] text-[clamp(24px,3.2vw,38px)] font-semibold leading-tight tracking-tight">
             &ldquo;We cut our mean-time-to-resolution from 40 minutes to under 6 the week we turned
@@ -302,39 +293,43 @@ export default function Home() {
           What changes in week one
         </h2>
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-          <div className="rounded-3xl border border-white/[0.08] bg-[var(--color-bg-raised)] p-7 sm:p-9">
-            <p className="m-0 mb-5 font-mono text-[13px] uppercase tracking-[0.08em] text-[#7D8280]">
-              Before Northline
-            </p>
-            <ul className="m-0 flex list-none flex-col gap-4 p-0">
-              {BEFORE_ITEMS.map((item) => (
-                <li key={item} className="flex items-start gap-3 text-[15px] leading-relaxed text-[var(--color-muted)]">
-                  <span aria-hidden className="shrink-0 font-mono text-[#7D8280]">
-                    ✕
-                  </span>
-                  {item}
-                </li>
-              ))}
-            </ul>
-          </div>
-          <div
-            className="rounded-3xl border border-[var(--color-accent)] p-7 sm:p-9"
-            style={{ background: "#141a0c" }}
-          >
-            <p className="m-0 mb-5 font-mono text-[13px] uppercase tracking-[0.08em] text-[var(--color-accent)]">
-              With Northline
-            </p>
-            <ul className="m-0 flex list-none flex-col gap-4 p-0">
-              {AFTER_ITEMS.map((item) => (
-                <li key={item} className="flex items-start gap-3 text-[15px] leading-relaxed">
-                  <span aria-hidden className="shrink-0 font-mono text-[var(--color-accent)]">
-                    ✓
-                  </span>
-                  {item}
-                </li>
-              ))}
-            </ul>
-          </div>
+          <Reveal variant="left">
+            <div className="rounded-3xl border border-white/[0.08] bg-[var(--color-bg-raised)] p-7 sm:p-9">
+              <p className="m-0 mb-5 font-mono text-[13px] uppercase tracking-[0.08em] text-[#7D8280]">
+                Before Northline
+              </p>
+              <ul className="m-0 flex list-none flex-col gap-4 p-0">
+                {BEFORE_ITEMS.map((item) => (
+                  <li key={item} className="flex items-start gap-3 text-[15px] leading-relaxed text-[var(--color-muted)]">
+                    <span aria-hidden className="shrink-0 font-mono text-[#7D8280]">
+                      ✕
+                    </span>
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </Reveal>
+          <Reveal variant="right" delay={0.1}>
+            <div
+              className="rounded-3xl border border-[var(--color-accent)] p-7 sm:p-9"
+              style={{ background: "#141a0c" }}
+            >
+              <p className="m-0 mb-5 font-mono text-[13px] uppercase tracking-[0.08em] text-[var(--color-accent)]">
+                With Northline
+              </p>
+              <ul className="m-0 flex list-none flex-col gap-4 p-0">
+                {AFTER_ITEMS.map((item) => (
+                  <li key={item} className="flex items-start gap-3 text-[15px] leading-relaxed">
+                    <span aria-hidden className="shrink-0 font-mono text-[var(--color-accent)]">
+                      ✓
+                    </span>
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </Reveal>
         </div>
       </Reveal>
 
@@ -354,20 +349,12 @@ export default function Home() {
               how chatty your agents get.
             </p>
           </div>
-          <BorderedGrid minWidth={150}>
-            <BorderedGridCell className="bg-[#0E0F11] hover:bg-[#0E0F11] p-5.5">
-              <div className="font-mono text-[clamp(24px,2.6vw,32px)] font-bold">10x</div>
-              <div className="mt-2 font-mono text-xs text-[#7D8280]">
-                spans per agentic request vs. a typical web call
-              </div>
-            </BorderedGridCell>
-            <BorderedGridCell className="bg-[#0E0F11] hover:bg-[#0E0F11] p-5.5">
-              <div className="font-mono text-[clamp(24px,2.6vw,32px)] font-bold">0%</div>
-              <div className="mt-2 font-mono text-xs text-[#7D8280]">
-                bill increase tied to trace volume — priced on services, not GB
-              </div>
-            </BorderedGridCell>
-          </BorderedGrid>
+          <StatStrip
+            stats={[
+              { value: "10x", label: "spans per agentic request vs. a typical web call" },
+              { value: "0%", label: "bill increase tied to trace volume — priced on services, not GB" },
+            ]}
+          />
         </div>
       </Reveal>
 
