@@ -1,12 +1,16 @@
 import type { Metadata } from "next";
 import { HeroWatermark } from "@/components/ui/hero-watermark";
 import { BorderedGrid, BorderedGridCell } from "@/components/ui/bordered-grid";
+import { StatStrip } from "@/components/ui/stat-strip";
 import { FinalCtaBand } from "@/components/ui/final-cta-band";
 import { Reveal } from "@/components/motion/reveal";
 import { LatticeCanvas } from "@/components/three/lattice-canvas";
 import { BarChartCanvas } from "@/components/three/bar-chart-canvas";
 import { LatencyHeatmap } from "@/components/product/latency-heatmap";
+import { CopyCommand } from "@/components/product/copy-command";
 import { JsonLd, serviceSchema } from "@/lib/structured-data";
+
+const INSTALL_COMMAND = "npm install @northline/otel-exporter";
 
 export const metadata: Metadata = {
   title: "Product",
@@ -116,22 +120,12 @@ export default function ProductPage() {
       </section>
 
       {/* Stats */}
-      <Reveal className="mx-auto w-full max-w-6xl px-4 sm:px-6">
-        <BorderedGrid>
-          {STATS.map((stat) => (
-            <BorderedGridCell key={stat.n}>
-              <div className="mb-2.5 font-mono text-xs text-[#7D8280]">{stat.n}</div>
-              <div className="font-mono text-[clamp(30px,3.6vw,42px)] font-bold tabular-nums">
-                {stat.value}
-              </div>
-              <div className="mt-2.5 font-mono text-sm text-[var(--color-muted)]">{stat.label}</div>
-            </BorderedGridCell>
-          ))}
-        </BorderedGrid>
+      <Reveal variant="scale" className="mx-auto w-full max-w-6xl px-4 sm:px-6">
+        <StatStrip stats={STATS.map((s) => ({ value: s.value, label: s.label }))} />
       </Reveal>
 
       {/* Editorial */}
-      <Reveal className="mx-auto w-full max-w-6xl px-4 sm:px-6">
+      <Reveal variant="scale" className="mx-auto w-full max-w-6xl px-4 sm:px-6">
         <div className="relative overflow-hidden rounded-[2rem] bg-[var(--color-foreground)] px-6 py-20 text-center text-[var(--color-bg)] sm:px-16 sm:py-28">
           <span
             aria-hidden
@@ -194,7 +188,7 @@ export default function ProductPage() {
       </Reveal>
 
       {/* Blast radius */}
-      <Reveal className="mx-auto w-full max-w-6xl px-4 sm:px-6">
+      <Reveal variant="scale" className="mx-auto w-full max-w-6xl px-4 sm:px-6">
         <div className="grid grid-cols-1 items-center gap-10 sm:grid-cols-[1fr_1.2fr]">
           <div>
             <p className="m-0 mb-3.5 font-mono text-[13px] uppercase tracking-[0.12em] text-[var(--color-accent)]">
@@ -273,9 +267,11 @@ export default function ProductPage() {
               at us and you&apos;re done.
             </p>
           </div>
-          <pre className="m-0 overflow-x-auto rounded-[1.25rem] border border-[var(--color-border-strong)] bg-[var(--color-bg)] p-6 sm:p-8">
-            <code className="whitespace-pre font-mono text-sm leading-[1.7] text-[#C7C9C4]">
-              {`$ npm install @northline/otel-exporter
+          <div className="relative">
+            <CopyCommand command={INSTALL_COMMAND} />
+            <pre className="m-0 overflow-x-auto rounded-[1.25rem] border border-[var(--color-border-strong)] bg-[var(--color-bg)] p-6 sm:p-8">
+              <code className="whitespace-pre font-mono text-sm leading-[1.7] text-[#C7C9C4]">
+                {`$ npm install @northline/otel-exporter
 
 import { NorthlineExporter } from '@northline/otel-exporter';
 tracerProvider.addSpanProcessor(
@@ -284,11 +280,12 @@ tracerProvider.addSpanProcessor(
   }))
 );
 `}
-              <span className="text-[var(--color-accent)]">
-                {"// first trace shows up in your timeline in ~30s"}
-              </span>
-            </code>
-          </pre>
+                <span className="text-[var(--color-accent)]">
+                  {"// first trace shows up in your timeline in ~30s"}
+                </span>
+              </code>
+            </pre>
+          </div>
         </div>
       </Reveal>
 
